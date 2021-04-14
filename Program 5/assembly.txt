@@ -1,0 +1,11 @@
+        ORG         $00005000
+        MOVE        #60, $00005000
+        TRAP        #1                ;READLN (Y),  INPUT INTO DO
+LOOP1   MOVE        DO, $00005004     ;STORE DO IN LOCATION Y
+        MOVE        $00005000, DO     ;FETCH VARIABLE I FOR THE AD
+        ADD         $00005004, DO     ;ADD Y+1
+        MOVE        DO, $00005002     ;STORE THE SUM IN X
+LOOP2   ADDI        #15, $00005002    ;ADD 18 TO X
+        TRAP        #2                ;PRINT X
+        TRAP        #0                ;STOP
+        END
