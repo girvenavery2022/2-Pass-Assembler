@@ -24,6 +24,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		9C43FB3F262F6FEE006678F5 /* SymTab.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = SymTab.txt; sourceTree = "<group>"; };
+		9C43FB44262F794A006678F5 /* OutPut.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = OutPut.txt; sourceTree = "<group>"; };
+		9C43FB5A26308F27006678F5 /* psuedotab.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = psuedotab.txt; sourceTree = "<group>"; };
+		9C43FB5C2630B16C006678F5 /* MRI.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = MRI.txt; sourceTree = "<group>"; };
+		9C43FB5D2630B2E9006678F5 /* non-MRI.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "non-MRI.txt"; sourceTree = "<group>"; };
 		9C6A7885261BB5D400A9A342 /* assembly.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = assembly.txt; sourceTree = "<group>"; };
 		9C70BC8F2623A614001D3F94 /* instructions.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = instructions.cpp; sourceTree = "<group>"; };
 		9CDA5708260E40DE001E7376 /* Program 5 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Program 5"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -61,8 +66,13 @@
 			isa = PBXGroup;
 			children = (
 				9CDA570B260E40DE001E7376 /* main.cpp */,
+				9C43FB5C2630B16C006678F5 /* MRI.txt */,
 				9C6A7885261BB5D400A9A342 /* assembly.txt */,
 				9C70BC8F2623A614001D3F94 /* instructions.cpp */,
+				9C43FB3F262F6FEE006678F5 /* SymTab.txt */,
+				9C43FB44262F794A006678F5 /* OutPut.txt */,
+				9C43FB5A26308F27006678F5 /* psuedotab.txt */,
+				9C43FB5D2630B2E9006678F5 /* non-MRI.txt */,
 			);
 			path = "Program 5";
 			sourceTree = "<group>";
