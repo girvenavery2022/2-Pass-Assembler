@@ -1,7 +1,7 @@
 //
 //  main.cpp
 //  Program 5
-//
+//  CIS 310 
 //  Created by Avery Girven on 3/26/21.
 //
 
@@ -25,19 +25,20 @@ private:
     string operand;
     string operand_type;
     string comment;
+    string op1;
     string op2;
     string binary_op;
     string code;
+    string instru;
+    bool error;
     int LC;
-    map<int,string> symtab;
-    map<int,string>::iterator it;
+    map<string,string> symtab;
+    map<string,string>::iterator it;
 public:
     instructions f[17];
-    assembler(){
-        label = " ";
-    }
-    void create_table();
-    string search_table();
+    
+    void create_table();          //create table
+    string search_table();      // search through table
     int hex_to_dec(string hex);  //convert hexadecimal to decimal
     string dec_to_hex(int dec);  // convert address to hex
     void partition();           // break up line into columns
@@ -53,30 +54,34 @@ public:
     bool search_psuedo(); // table look up for psuedo instructions
     bool search_MRI(); // table look up for MRI
     bool search_non_MRI();  // table look up for non-MRI
-    void Operation();
+    void Operation();       //execute operation
     void print(ofstream &output, ofstream &symtab); // print table
     
 };
+
+// takes a hexadecimal string in and returns the decimal equivelant
 int assembler::hex_to_dec(string op){
     int size = static_cast<int>(op.size());
     int decimal = 0;
     int base = 1;
-        for(int i = size; i >= 0;i--){ // iterate
+        for(int i = size; i >= 0;i--){
             if(op[i] == '$'){
                 op.erase(i);
             }
             if(op[i] >= '0' && op[i] <= '9'){
-                decimal += (op[i] - 48) * base; // subtract 48
-                base = base*16; // multiple it by base
+                decimal += (op[i] - 48) * base;
+                base = base*16;
             }
             else if(op[i] >= 'A' && op[i] <= 'F'){
-                decimal += (op[i] - 55) * base; // subtract 55
-                base = base*16;     // multiple it by base
+                decimal += (op[i] - 55) * base;
+                base = base*16;
             }
         }
     return decimal;
 }
-string assembler::dec_to_hex(int dec){ // decimal to hex conversion
+
+// takes in a decimal and returns the hexadecimal string equivelant
+string assembler::dec_to_hex(int dec){
     string hex;
     int i = 0;
     while (dec != 0) {
@@ -95,6 +100,7 @@ string assembler::dec_to_hex(int dec){ // decimal to hex conversion
     reverse(hex.begin(),hex.end());
     return hex;
 }
+
 void assembler::create_table(){
     f[0] = {"MOVE#DO","303C",4};
     f[1] = {"MOVE#$","33FC",8};
@@ -114,13 +120,17 @@ void assembler::create_table(){
     f[15].direct = "ORG";
     f[16].direct = "END";
 }
-void assembler::trim_whitespaces(){ // trim whitespaces from string
+
+// trim whitespaces from string
+void assembler::trim_whitespaces(){
     label.erase(remove(label.begin(),label.end(),' '),label.end());
     instruction.erase(remove(instruction.begin(),instruction.end(),' '),instruction.end());
     operand.erase(remove(operand.begin(),operand.end(),' '),operand.end());
     comment.erase(remove(comment.begin(),comment.end(),' '),comment.end());
 }
-void assembler::partition(){ // parse line starting with comment
+
+// parse line starting with comment
+void assembler::partition(){
     extract_comment(); // pull comments first
     extract_operand(); // pull opernads second
     extract_instruction(); // pull instructions third
@@ -129,40 +139,43 @@ void assembler::partition(){ // parse line starting with comment
     binary_op = instruction; // make binary operation
     binary_op += operand_type;
 }
+
 void assembler::extract_comment(){
-    for(int i = 0; i <line.size();i++){ // iterate through line
+    for(int i = 0; i <line.size();i++){
         if(line[i] == ';'){ // line has a comment
             comment = line.substr(i+1,line.size()); // pull comment out
             line.erase(i,line.size());      // erase comment from line
         }
-        else                // no comment
+        else
             comment = " ";
     }
 }
+
 void assembler::extract_operand(){
     op2 = "";
     operand_type = "";
-    for(int i = 0; i < line.size();i++){ // operand has $ or #
+    for(int i = 0; i < line.size();i++){
         if(line[i]== '$'||line[i]=='#'){
             operand = line.substr(i,line.size()); // pull it from line
             line.erase(i,line.size());          // erase from line
         }
-        else if(line[i] == 'D' && line[i+1] == 'O'){ // operand has DO
+        else if(line[i] == 'D' && line[i+1] == 'O'){
             operand = line.substr(i,line.size());   // pull it from line
             line.erase(i,line.size());          // erase it from line
         }
     }
-    for(int i = 0; i < operand.size();i++){ // decision for operand type
-        if(operand[i]== '$'||operand[i]=='#'){ // has $ or #
+    for(int i = 0; i < operand.size();i++){
+        if(operand[i]== '$'||operand[i]=='#'){
             operand_type.push_back(operand[i]);
         }
-        else if(operand[i] == 'D' & operand[i+1] == 'O'){ // has DO
+        else if(operand[i] == 'D' & operand[i+1] == 'O'){
             operand_type.push_back(operand[i]);
             operand_type.push_back(operand[i+1]);
         }
     }
     
 }
+
 void assembler::extract_instruction(){
     for(int i = 0; i <line.size();i++){     // iterate through line
         if(line[i]=='M'&&line[i+1]=='O'&&line[i+2] =='V'&&line[i+3] == 'E'){ // line uses MOVE
@@ -198,11 +211,18 @@ void assembler::extract_instruction(){
             line.erase(i,line.size());  // erase it from line;
         }
     }
+    instru = " ";
+    instru.append(instruction);
+    instru.append(operand);
 }
-void assembler::extract_label(){ // remaining line is a label
+
+// remaining line is a label
+void assembler::extract_label(){
     label = line;       // assign line to label
     line.erase(0,line.size());  // erase it from line;
 }
+
+// manipulate operand into op1 and op2 respectively
 void assembler::Operation(){
     for(int i = 0; i < operand.size();i++){
         if(operand[i] == ','){
@@ -228,8 +248,11 @@ void assembler::Operation(){
             op2 = dec_to_hex(stoi(op2));
         }
     }
+    op1 = operand;
     operand.append(op2);
 }
+
+//searches the table to find the binary_ops machine code
 string assembler::search_table(){
     string code = " ";
     for(int i = 0;i < 17;i++){
@@ -244,6 +267,7 @@ string assembler::search_table(){
     }
     return code;
 }
+// open and search psuedo 
 bool assembler::search_psuedo(){
     bool present = false;
     string ln;
@@ -265,6 +289,7 @@ bool assembler::search_psuedo(){
     pt.close();
     return present;
 }
+// open and search MRI table
 bool assembler::search_MRI(){
     bool present = false;
     string ln;
@@ -286,6 +311,7 @@ bool assembler::search_MRI(){
     MRI.close();
     return present;
 }
+// search open, and search non-MRI table
 bool assembler::search_non_MRI(){
     bool present = false;
     string ln;
@@ -308,6 +334,7 @@ bool assembler::search_non_MRI(){
     return present;
 }
 
+// performs the first pass on the program
 void assembler::first_pass(ifstream &input,ofstream &output){
     int i = 0;
     LC = 0;
@@ -315,7 +342,9 @@ void assembler::first_pass(ifstream &input,ofstream &output){
         operand_type = "";
         partition();
         if(label != ""){
-            symtab.insert(pair<int,string>(LC,label));
+            string hex = dec_to_hex(LC);
+            hex = add_zeros(hex);
+            symtab.insert(pair<string,string>(hex,label));
             LC += 1;
         }
         else{
@@ -335,6 +364,8 @@ void assembler::first_pass(ifstream &input,ofstream &output){
     }
     input.close();
 }
+
+// performs the second pass on the function
 void assembler::second_pass(ifstream &input,ofstream &output){
     string hex;
     string mo;
@@ -347,7 +378,6 @@ void assembler::second_pass(ifstream &input,ofstream &output){
         if(search_psuedo()){
             if(instruction == "ORG"){
                 LC = hex_to_dec(operand);
-                
             }
             else{
                 if(instruction == "END"){
@@ -361,9 +391,18 @@ void assembler::second_pass(ifstream &input,ofstream &output){
         else if(search_MRI()){
             mo = search_table();
             hex = dec_to_hex(LC);
-            output << add_zeros(hex) << setfill(' ') << setw(8) << " " << mo << endl;
+            if(op1 == "DO"){
+                operand = op2;
+            }
+            else if(op2 == "DO"){
+                operand = op1;
+            }
+            output << setw(16) << setfill(' ') << add_zeros(hex);
+            output << setw(20) << mo;
+            output << setw(18) << operand;
+            output << setw(17) << instru << endl;
+ 
             LC = LC + 1;
-
         }
         else if(search_non_MRI()){
             if(binary_op == "TRAP#"){
@@ -375,35 +414,58 @@ void assembler::second_pass(ifstream &input,ofstream &output){
             else{
                 mo = search_table();
             }
+            if(binary_op == "TRAP#"){
+                operand = "-";
+            }
+            else if(binary_op == "TRAP#1"){
+                operand = "-";
+            }
+            else if(binary_op == "TRAP#2"){
+                operand = "-";
+            }
             hex = dec_to_hex(LC);
-            output << add_zeros(hex) << setfill(' ') << setw(8) << " " << mo << endl;
+            output << setw(16) << setfill(' ') << add_zeros(hex);
+            output << setw(20)  << mo;
+            output << setw(18) << operand;
+            output << setw(17) << instru << endl;
             LC = LC + 1;
+        }
+        else{                // error in code
+            output << "Error in code" << endl;
+            break;
         }
     }
 }
+
+// recovers address size after converting back to hexadecimal form
 string assembler::add_zeros(string hex){
     int num_zeros = 0;
     int hex_size = static_cast<int>(hex.size());
-    num_zeros = 8 - hex_size ;
-    hex.insert(0,num_zeros,'0');
+    num_zeros = 8 - hex_size; // calculate the number of zeros required
+    hex.insert(0,num_zeros,'0');    // insert them
     return hex;
 }
+
+// formats the output for the symbol table and output.txt
 void print_format(ofstream &output,ofstream &Symtab){
     output << left << setw(16) << "Address";   // output table format
     output << left << setw(20) << "Machine Code";
     output << left << setw(19) << "Operands";
     output << left << setw(15) << "Instructions" << endl;
-    output << setfill('-') << setw(70) << "-" << endl;
+    output << setfill('-') << setw(81) << "-" << endl;
     Symtab << " Label" << " | " << "LC" << endl;  // symtab format
-    Symtab << "---------------" << endl;
+    Symtab << "------------------" << endl;
 }
+
+// prints the map containing the pair for the table
 void assembler::print(ofstream &output,ofstream &Symtab){
-    for (it = symtab.begin(); it != symtab.end(); ++it){ // output symtab
+    for (it = symtab.begin(); it != symtab.end(); ++it){
         Symtab << "|" << (*it).second << " | " << (*it).first << "|" << endl;
     }
-    Symtab << "---------------" << endl;
+    Symtab << "------------------" << endl;
     
 }
+
 int main() {
     string line = " ";
     ifstream input;
@@ -416,14 +478,11 @@ int main() {
         cout << "Invalid" << endl;
     }
     else{
-
-       // while(getline(input,line)){;
         assembler a;
         a.create_table();
         print_format(output,symbtab);
         a.first_pass(input,output);
         a.print(output,symbtab);
-        //}
     }
     return 0;
 }
